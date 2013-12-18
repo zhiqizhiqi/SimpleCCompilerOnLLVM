@@ -9,5 +9,9 @@ This project works under Ubuntu12.04. I'm not quite sure it will work perfectly 
 
 --------------------
 ##command to run:
+<code>
 $ make
+</code>
+<code>
 $ ./program <input file> <output file>
+</code>
