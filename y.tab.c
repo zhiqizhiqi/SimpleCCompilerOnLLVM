@@ -77,7 +77,7 @@
 
 #include "struct.h"
 #define YYDEBUG 1
-#define CODE_LENGTH 1000
+#define CODE_LENGTH 500
 #define TYPE_NUMBER 100
 #define ID_NUMBER 100
 
@@ -2699,7 +2699,7 @@ void deal_with_write(Node* n){
 	char* args_code = code_ARGS(n->next->next);
 	char ret[CODE_LENGTH] = "";
 	sprintf(ret, "%%call%d", counter++);
-	fprintf(fout, "%s = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str, i32 0, i32 0), %s)\n", ret, args_code);
+	fprintf(fout, "%s = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str1, i32 0, i32 0), %s)\n", ret, args_code);
 	return;	
 }
 
@@ -2708,6 +2708,7 @@ void code_PROGRAM(Node* n) {
 	char* code;
 	code = strdup(";author ZZQ\n");
 	strcat(code, "@.str = private unnamed_addr constant [3 x i8] c\"%d\\00\", align 1\n");
+	strcat(code, "@.str1 = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\", align 1\n");
 	strcat(code, "declare i32 @printf(i8*, ...)\n");
 	strcat(code, "declare i32 @__isoc99_scanf(i8*, ...)\n");
 	fprintf(fout, "%s", code);
@@ -2728,7 +2729,9 @@ void code_EXTDEF(Node* n) {
 	printf("EXTDEF\n");
 	n = n->child;
 	char* type;
-	char code[CODE_LENGTH] = "";
+	char* code;
+	code = malloc(sizeof(char)*CODE_LENGTH);
+	sprintf(code, "");
 
 	type = code_SPEC(n);
 	n = n->next;
@@ -2742,7 +2745,10 @@ void code_EXTDEF(Node* n) {
 		char tmp[CODE_LENGTH] = "";
 		sprintf(tmp, "define %s ", type);
 		strcat(code, tmp);
-		strcat(code, code_FUNC(n));
+		char* code_func = code_FUNC(n);
+		printf ("________________________code_func:%s", code_func);
+		strcat(code, code_func);
+
 		fprintf(fout, "%s", code);
 		code_STMTBLOCK(n->next);
 		fprintf(fout, "}\n");
@@ -2775,7 +2781,7 @@ char* code_SPEC(Node* n) {
 char* code_STSPEC(Node* n) {
 	printf("STSPEC\n");
 	return "STSPEC";
-}
+} 
 
 void code_OPTTAG(Node* n) {
 	
@@ -2787,16 +2793,18 @@ void code_VAR(Node* n) {
 
 char* code_FUNC(Node* n) {
 	n = n->child;
-	char ret_code[CODE_LENGTH] = "";
+	char* ret_code;
+	ret_code = malloc(sizeof(char)*CODE_LENGTH);
 	char* func_id = n->content;
 	char* paras = code_PARAS(n->next->next);
-
 	sprintf(ret_code, "@%s(%s", func_id, paras);
 	return ret_code;
 }
 
 char* code_PARAS(Node* n) {
-	char ret_code[CODE_LENGTH] = "";
+	char* ret_code;
+	ret_code = malloc(sizeof(char)*CODE_LENGTH);
+	sprintf(ret_code, "");
 
 	char para_code[CODE_LENGTH] = "";
 	char init_code[CODE_LENGTH] = "";
@@ -2813,6 +2821,7 @@ char* code_PARAS(Node* n) {
 	}
 	strcat(ret_code, ") {\nentry:\n");
 	strcat(ret_code, init_code);
+	printf("_____________________________Ret_code:%s", ret_code);
 	return ret_code;
 }
 
@@ -2858,17 +2867,51 @@ void code_STMT(Node* n) {
 		char* exp_ret = code_EXP(n);
 	}
 	else if (strcmp(n->token, "STMTBLOCK") == 0) {		// STMTBLOCK
-
+		code_STMTBLOCK(n);
 	}
 	else if (strcmp(n->token, "RETURN") == 0) {			// RETURN EXP SEMI
 		char* exp_code = code_EXP(n->next);
 		fprintf(fout, "ret i32 %s\n", exp_code);
 	}
 	else if (strcmp(n->token, "IF") == 0) {				// IF LP EXP RP STMT ESTMT
-
+		char* exp_code = code_EXP(n->next->next);
+		if (strcmp(n->attr.type, "i32") == 0) {
+			char* reg = get_TMP();
+			fprintf(fout, "%s = icmp ne i32 %s, 0\n", reg, exp_code);
+			exp_code = reg;
+		}
+		fprintf(fout, "br i1 %s, label %%if.then%d, label %%if.else%d\n\n", exp_code, counter, counter);
+		int tmp_counter = counter++;
+		fprintf(fout, "if.then%d:\n", tmp_counter);
+		code_STMT(n->next->next->next->next);
+		fprintf(fout, "br label %%if.end%d\n\n", tmp_counter);
+		fprintf(fout, "if.else%d:\n", tmp_counter);
+		code_ESTMT(n->next->next->next->next->next);
+		fprintf(fout, "br label %%if.end%d\n\n", tmp_counter);
+		fprintf(fout, "if.end%d:\n", tmp_counter);
 	}
 	else if (strcmp(n->token, "FOR") == 0) {			// FOR LP EXP SEMI EXP SEMI EXP RP STMT
-
+		int tmp_counter = counter++;
+		char* exp_code;
+		n = n->next->next;				//first EXP
+		exp_code = code_EXP(n);
+		fprintf(fout, "br label %%for.cond%d\n\n", tmp_counter);
+		fprintf(fout, "for.cond%d:\n", tmp_counter);
+		n = n->next->next;				//second EXP
+		exp_code = code_EXP(n);
+		if (strcmp(n->attr.type, "i32") == 0) {
+			char* reg = get_TMP();
+			fprintf(fout, "%s = icmp ne i32 %s, 0\n", reg, exp_code);
+			exp_code = reg;
+		}
+		fprintf(fout, "br i1 %s, label %%for.body%d, label %%for.end%d\n\n", exp_code, tmp_counter, tmp_counter);
+		fprintf(fout, "for.body%d:\n", tmp_counter);
+		code_STMT(n->next->next->next->next);
+		fprintf(fout, "br label %%for.inc%d\n\n", tmp_counter);
+		fprintf(fout, "for.inc%d:\n", tmp_counter);
+		exp_code = code_EXP(n->next->next);
+		fprintf(fout, "br label %%for.cond%d\n\n", tmp_counter);
+		fprintf(fout, "for.end%d:\n", tmp_counter);
 	}
 	else if (strcmp(n->token, "CONT") == 0) {			// CONT SEMI
 
@@ -2882,7 +2925,13 @@ void code_STMT(Node* n) {
 }
 
 void code_ESTMT(Node* n) {
-	
+	n = n->child;
+	if (n == NULL) {					// nothing
+	}
+	else {								// ELSE STMT
+		code_STMT(n->next);
+	}
+	return;
 }
 
 void code_DEFS(Node* n) {
@@ -2964,7 +3013,7 @@ void code_DEC(Node* n, char* type) {
 		if (n->attr.space == 0) sprintf(tmp, "@%s = common global [%s x %s] ", var_id, res, type);
 		else sprintf(tmp, "%%%s = alloca [%s x %s], align 4\n", var_id, res, type);
 		char tmp[CODE_LENGTH] = "";
-		sprintf (tmp, "%s * %s", res, type);
+		sprintf (tmp, "%s x %s", res, type);
 		record_ids(var_id, tmp, n->attr.space, 0);
 	}
 	strcat(code, tmp);
@@ -3045,6 +3094,7 @@ char* code_EXP(Node* n) {
 			else {
 				sprintf(ret, "%c%s", c, getID_eliminatePara(n->content));
 			}
+			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "LP") == 0) {					// ID LP ARGS RP
 			if (strcmp(n->content, "read") == 0) deal_with_read(org);
@@ -3054,6 +3104,7 @@ char* code_EXP(Node* n) {
 				sprintf(ret, "%%call%d", counter++);
 				fprintf(fout, "%s = call i32 @%s (%s)\n", ret, n->content, args_code);
 			}
+			org->attr.type = strdup("i32");	
 		}
 		else if (strcmp(n->next->token, "ARRS") == 0) {					// ID ARRS
 			ret = get_TMP();
@@ -3064,11 +3115,14 @@ char* code_EXP(Node* n) {
 			if (getID_space(n->content) == 0) c = '@';
 			else c = '%';
 			if (org->attr.isLeft == 0) {
-				fprintf(fout, "%s = load i32* getelementptr inbounds ([%s]* %c%s, i32 0, %s), align 4\n", ret, getID_type(n->content), c, getID_eliminatePara(n->content), arrs_code);
+				char* reg = get_TMP();
+				fprintf(fout, "%s = getelementptr inbounds [%s]* %c%s, i32 0, %s\n", reg, getID_type(n->content), c, getID_eliminatePara(n->content), arrs_code);
+				fprintf(fout, "%s = load i32* %s, align 4\n", ret, reg);
 			}
 			else {
 				fprintf(fout, "%s = getelementptr inbounds [%s]* %c%s, i32 0, %s\n", ret, getID_type(n->content), c, getID_eliminatePara(n->content), arrs_code);
 			}
+			org->attr.type = strdup("i32");
 		}
 		else {}
 	}
@@ -3078,63 +3132,209 @@ char* code_EXP(Node* n) {
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
 			fprintf(fout, "%s = add i32 %s, %s \n", ret, opr1, opr2);
-
+			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "MINUS") == 0) {				// EXP MINUS EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
 			fprintf(fout, "%s = sub i32 %s, %s\n", ret, opr1, opr2);	
+			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "PRODUCT") == 0) {				// EXP PRODUCT EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
 			fprintf(fout, "%s = mul i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "DIVISION") == 0) {				// EXP DIVISION EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
 			fprintf(fout, "%s = sdiv i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "MOD") == 0) {					// EXP MOD EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
 			fprintf(fout, "%s = srem i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "BAND") == 0) {					// EXP BAND EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
 			fprintf(fout, "%s = and i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i32");
 		}
-		else if (strcmp(n->next->token, "ASSIGNOP") == 0) {
+		else if (strcmp(n->next->token, "BXOR") == 0) {					// EXP BXOR EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = xor i32 %s, %s\n", ret, opr1, opr2);	
+			org->attr.type = strdup("i32");
+		}
+		else if (strcmp(n->next->token, "BOR") == 0) {					// EXP BOR EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = or i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i32");
+		}
+		else if (strcmp(n->next->token, "SHLEFT") == 0) {				// EXP SHLEFT EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = shl i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i32");
+		}
+		else if (strcmp(n->next->token, "SHRIGHT") == 0) {				// EXP SHRIGHT EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = lshr i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i32");
+		}
+		else if (strcmp(n->next->token, "LOGAND") == 0) {				// EXP LOGAND EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = and i1 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i1");
+		}
+		else if (strcmp(n->next->token, "LOGOR") == 0) {				// EXP LOGOR EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = or i1 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i1");
+		}
+		else if (strcmp(n->next->token, "GREATER") == 0) {				// EXP GREATER EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = icmp sgt i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i1");
+		}
+		else if (strcmp(n->next->token, "GREATEREQU") == 0) {			// EXP GREATEREQU EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = icmp sge i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i1");
+		}
+		else if (strcmp(n->next->token, "LESS") == 0) {					// EXP LESS EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = icmp slt i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i1");
+		}
+		else if (strcmp(n->next->token, "LESSEQU") == 0) {				// EXP LESSEQU EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = icmp sle i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i1");
+		}
+		else if (strcmp(n->next->token, "EQU") == 0) {					// EXP EQU EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = icmp eq i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i1");
+		}
+		else if (strcmp(n->next->token, "NOTEQU") == 0) {				// EXP NOTEQU EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			fprintf(fout, "%s = icmp ne i32 %s, %s\n", ret, opr1, opr2);
+			org->attr.type = strdup("i1");
+		}
+		else if (strcmp(n->next->token, "DOT") == 0) {
+
+		}
+		else if (strcmp(n->next->token, "ASSIGNOP") == 0) {				// EXP ASSIGNOP EXP
 			n->attr.isLeft = 1;
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
-			counter--;
 			fprintf(fout, "store i32 %s, i32* %s, align 4\n", opr2, opr1);
+			org->attr.type = strdup("i32");
 		}
-		else {}
+		else {		// some operation and then assign     EXP ***AN EXP
+			char* opr1 = code_EXP(n);
+			char* opr2 = code_EXP(n->next->next);
+			Attr attr = n->attr;
+			attr.isLeft = 1;
+			updateAttr(n, attr);
+			char* opr = code_EXP(n);
+			if (strcmp(n->next->token, "PLUSAN") == 0) {				// EXP PLUSAN EXP
+				fprintf(fout, "%s = add i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else if (strcmp(n->next->token, "MINUSAN") == 0) {			// EXP MINUSAN EXP
+				fprintf(fout, "%s = sub i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else if (strcmp(n->next->token, "PRODUCTAN") == 0) {		// EXP PRODECTAN EXP
+				fprintf(fout, "%s = mul i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else if (strcmp(n->next->token, "DIVISIONAN") == 0) {		// EXP DIVISIONAN EXP
+				fprintf(fout, "%s = sdiv i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else if (strcmp(n->next->token, "BANDAN") == 0) {			// EXP BANDAN EXP
+				fprintf(fout, "%s = and i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else if (strcmp(n->next->token, "BXORAN") == 0) {			// EXP BXORAN EXP
+				fprintf(fout, "%s = xor i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else if (strcmp(n->next->token, "BORAN") == 0) {			// EXP BORAN EXP
+				fprintf(fout, "%s = or i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else if (strcmp(n->next->token, "SHLEFTAN") == 0) {			// EXP SHLEFTAN EXP
+				fprintf(fout, "%s = shl i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else if (strcmp(n->next->token, "SHRIGHTAN") == 0) {		// EXP SHRIGHTAN EXP
+				fprintf(fout, "%s = lshr i32 %s, %s \n", ret, opr1, opr2);
+			}
+			else {}
+			fprintf(fout, "store i32 %s, i32* %s, align 4\n", ret, opr);
+			org->attr.type = strdup("i32");
+		}
 
 	}
 	else if (strcmp(n->token, "MINUS") == 0) {							// MINUS EXP
-
+		ret = get_TMP();
+		char* opr = code_EXP(n->next);
+		fprintf(fout, "%s = sub i32 0, %s\n", ret, opr);	
 	}
 	else if (strcmp(n->token, "INCR") == 0) {							// INCR EXP
-
+		ret = get_TMP();
+		char* opr = code_EXP(n->next);
+		fprintf(fout, "%s = add i32 %s, 1 \n", ret, opr);
+		Attr attr = n->attr;
+		attr.isLeft = 1;
+		updateAttr(n->next, attr);
+		opr = code_EXP(n->next);
+		fprintf(fout, "store i32 %s, i32* %s, align 4\n", ret, opr);
+		org->attr.type = strdup("i32");
 	}
 	else if (strcmp(n->token, "DECR") == 0) {							// DECR EXP
-
+		ret = get_TMP();
+		char* opr = code_EXP(n->next);
+		fprintf(fout, "%s = sub i32 %s, 1 \n", ret, opr);
+		Attr attr = n->attr;
+		attr.isLeft = 1;
+		updateAttr(n->next, attr);
+		opr = code_EXP(n->next);
+		fprintf(fout, "store i32 %s, i32* %s, align 4\n", ret, opr);
+		org->attr.type = strdup("i32");
 	}
 	else if (strcmp(n->token, "BNOT") == 0) {							// BNOT EXP
-
+		ret = get_TMP();
+		char* opr = code_EXP(n->next);
+		fprintf(fout, "%s = xor i32 %s, -1\n", ret, opr);
+		org->attr.type = strdup("i32");
 	}
 	else if (strcmp(n->token, "LOGNOT") == 0) {							// LOGNOT EXP
-
+		ret = get_TMP();
+		char* opr = code_EXP(n->next);
+		if (strcmp(n->next->attr.type, "i32") == 0)
+			fprintf(fout, "%s = icmp eq i32 %s, 0\n", ret, opr);
+		else
+			fprintf(fout, "%s = xor i1 %s, -1\n", ret, opr);
+		org->attr.type = strdup("i1");
 	}
 	else if (strcmp(n->token, "LP") == 0) {								// LP EXP RP
 		ret = code_EXP(n->next);
+		org->attr.type = strdup(n->next->attr.type);
 	}
 	else if (strcmp(n->token, "INT") == 0) {							// INT
 		sprintf(ret, "%s", n->content);
+		org->attr.type = strdup("i32");
 	}
 	else {}
 
@@ -3207,7 +3407,8 @@ int main(int argc, char* argv[]){
 	//printf ("%s%s\n", argv[0], argv[1]);
 	yydebug=0;	//set it to 1, that should be DEBUG mode, to 0, that will disable DEBUG
 	freopen(argv[1], "r", stdin);
-	fout = fopen(argv[2], "w");
+	fout = stdout;
+	//fout = fopen(argv[2], "w");
 	yyparse();
 	printf("\n\n");
 	// walkGraph(head, 1);

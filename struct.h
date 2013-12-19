@@ -2,6 +2,7 @@ typedef struct _attr
 {
 	int space;
 	int isLeft;
+	char* type;
 } Attr;
 
 typedef struct _node {
