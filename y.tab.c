@@ -77,7 +77,7 @@
 
 #include "struct.h"
 #define YYDEBUG 1
-#define CODE_LENGTH 500
+#define CODE_LENGTH 250
 #define TYPE_NUMBER 100
 #define ID_NUMBER 100
 
@@ -2729,9 +2729,7 @@ void code_EXTDEF(Node* n) {
 	printf("EXTDEF\n");
 	n = n->child;
 	char* type;
-	char* code;
-	code = malloc(sizeof(char)*CODE_LENGTH);
-	sprintf(code, "");
+	char code[CODE_LENGTH] = "";
 
 	type = code_SPEC(n);
 	n = n->next;
@@ -2745,9 +2743,7 @@ void code_EXTDEF(Node* n) {
 		char tmp[CODE_LENGTH] = "";
 		sprintf(tmp, "define %s ", type);
 		strcat(code, tmp);
-		char* code_func = code_FUNC(n);
-		printf ("________________________code_func:%s", code_func);
-		strcat(code, code_func);
+		strcat(code, code_FUNC(n));
 
 		fprintf(fout, "%s", code);
 		code_STMTBLOCK(n->next);
@@ -2794,7 +2790,7 @@ void code_VAR(Node* n) {
 char* code_FUNC(Node* n) {
 	n = n->child;
 	char* ret_code;
-	ret_code = malloc(sizeof(char)*CODE_LENGTH);
+	ret_code = (char*)malloc(sizeof(char)*CODE_LENGTH);
 	char* func_id = n->content;
 	char* paras = code_PARAS(n->next->next);
 	sprintf(ret_code, "@%s(%s", func_id, paras);
@@ -2803,8 +2799,7 @@ char* code_FUNC(Node* n) {
 
 char* code_PARAS(Node* n) {
 	char* ret_code;
-	ret_code = malloc(sizeof(char)*CODE_LENGTH);
-	sprintf(ret_code, "");
+	ret_code = (char*)malloc(sizeof(char)*CODE_LENGTH);
 
 	char para_code[CODE_LENGTH] = "";
 	char init_code[CODE_LENGTH] = "";
@@ -2821,13 +2816,13 @@ char* code_PARAS(Node* n) {
 	}
 	strcat(ret_code, ") {\nentry:\n");
 	strcat(ret_code, init_code);
-	printf("_____________________________Ret_code:%s", ret_code);
 	return ret_code;
 }
 
 char* code_PARA(Node* n, int mode) {
 	n = n->child;
-	char ret_code[CODE_LENGTH] = "";
+	char* ret_code;
+	ret_code = (char*)malloc(sizeof(char)*CODE_LENGTH);
 	char* type = code_SPEC(n);
 	char* var_id = getVAR_ID(n->next);
 
@@ -2875,7 +2870,7 @@ void code_STMT(Node* n) {
 	}
 	else if (strcmp(n->token, "IF") == 0) {				// IF LP EXP RP STMT ESTMT
 		char* exp_code = code_EXP(n->next->next);
-		if (strcmp(n->attr.type, "i32") == 0) {
+		if (strcmp(n->next->next->attr.type, "i32") == 0) {
 			char* reg = get_TMP();
 			fprintf(fout, "%s = icmp ne i32 %s, 0\n", reg, exp_code);
 			exp_code = reg;
@@ -2971,7 +2966,8 @@ char* getID_eliminatePara(char* id){
 	int i;
 	for (i = 0; i < ptr_ids; ++i) {
 		if ((strcmp(id, ids[i].id) == 0) && (ids[i].isPara == 1)){
-			char ret[CODE_LENGTH] = "";
+			char* ret;
+			ret = (char*)malloc(sizeof(char)*CODE_LENGTH);
 			sprintf(ret, "%s.addr", id);
 			return ret;
 		}
@@ -3362,7 +3358,8 @@ char* code_ARGS(Node* n) {
 }
 
 char* code_ARRS(Node* n) {					// LB EXP RB ARRS
-	char ret[CODE_LENGTH] = "";
+	char* ret;
+	ret = (char*)malloc(sizeof(char)*CODE_LENGTH);
 	n = n->child;
 	char* exp_code = code_EXP(n->next);
 	sprintf(ret, "i32 %s", exp_code);
@@ -3407,8 +3404,8 @@ int main(int argc, char* argv[]){
 	//printf ("%s%s\n", argv[0], argv[1]);
 	yydebug=0;	//set it to 1, that should be DEBUG mode, to 0, that will disable DEBUG
 	freopen(argv[1], "r", stdin);
-	fout = stdout;
-	//fout = fopen(argv[2], "w");
+	//fout = stdout;
+	fout = fopen(argv[2], "w");
 	yyparse();
 	printf("\n\n");
 	// walkGraph(head, 1);
