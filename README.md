@@ -1,8 +1,8 @@
 ##环境: 
 本程序运行环境：
-1.  Ubuntu12.04
-2.  LLVM 3.5
-3.  gcc 4.6.3
+*  1.  Ubuntu12.04
+*  2.  LLVM 3.5
+*  3.  gcc 4.6.3
 
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##说明
@@ -29,7 +29,7 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 ##command to run:
 ```
-$ make </br>
-$ ./program (input file) (output file)</br>
-$ ./lli (output file) </br>
+$ make
+$ ./program (input file) (output file)
+$ ./lli (output file)
 ```
