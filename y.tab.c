@@ -3341,7 +3341,9 @@ char* code_EXP(Node* n) {
 			char *opr1, *opr2, *opr1_type;
 
 			n->attr.isLeft = 1;
-			n->next->next->attr.isLeft = 1;
+			Attr attr = n->next->next->attr;
+			attr.isLeft = 1;
+			updateAttr(n->next->next, attr);
 			opr1 = code_EXP(n);
 			opr2 = code_EXP(n->next->next);
 			opr1_type = strdup(n->attr.type);
@@ -3363,7 +3365,7 @@ char* code_EXP(Node* n) {
 			}
 			if (type == NULL) printf("there is ERROR!\n");
 
-			if (org->attr.isLeft == 0) {
+			if ((strcmp(n->next->next->child->token, "ID") == 0) && org->attr.isLeft == 0) {
 				char* reg = get_TMP();
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", reg, opr1_type, opr1, index);
 				fprintf(fout, "%s = load i32* %s, align 4\n", ret, reg);
