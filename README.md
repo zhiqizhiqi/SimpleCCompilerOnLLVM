@@ -1,17 +1,39 @@
-####ATTENTION: 
-This project works under Ubuntu12.04. I'm not quite sure it will work perfectly in other linux distributions.
+##环境: 
+本程序运行环境：
+1. Ubuntu12.04
+2. LLVM 3.5
+3. gcc 4.6.3
 
--------------
+--------------------------
 ##说明
 这是上海交通大学计算机系编译原理课程设计大作业。
 要求做一个Simple C的编译器，编程成LLVM的汇编语言。
- 
 
---------------------
+我的进度：
+1. 第一天，12个小时，完成：
+    - 表达式
+	- 变量定义
+	- 函数定义
+	- 函数调用
+2. 第二天， 6个小时，完成：
+	- 控制逻辑，也就是if, for什么的
+3. 第三天，4个小时，完成：
+	- 结构体类型
+	- 结构提嵌套
+ 
+如果有小伙伴，参考了我的程序，希望能够在改进之后继续开源，
+给之后更多的小伙伴一些参考～～
+
+祝愿大家顺利搞定编译作业！
+
+---------------------------
 ##command to run:
 <code>
-$ make
+$ make </br>
 </code>
 <code>
-$ ./program <input file> <output file>
+$ ./program (input file) (output file)</br>
+</code>
+<code>
+$ ./lli (output file) </br>
 </code>
