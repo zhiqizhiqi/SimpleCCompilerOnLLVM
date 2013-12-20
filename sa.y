@@ -3,6 +3,7 @@
 	Used for the syntax analyzer
 */
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
@@ -412,7 +413,7 @@ void pop_ids(int space){
 void deal_with_read(Node* n) {
 	n = n->child;
 	Attr attr = {n->attr.space, 1};
-	updateAttr(n->next->next, attr);
+	n->next->next->attr =  attr;
 	char* args_code = code_ARGS(n->next->next);
 	char ret[CODE_LENGTH] = "";
 	sprintf(ret, "%%call%d", counter++);
@@ -430,7 +431,7 @@ void deal_with_write(Node* n){
 }
 
 void code_PROGRAM(Node* n) {
-	printf("PROGRAM\n");
+	//printf("PROGRAM\n");
 	char* code;
 	code = strdup(";author ZZQ\n");
 	strcat(code, "@.str = private unnamed_addr constant [3 x i8] c\"%d\\00\", align 1\n");
@@ -443,7 +444,7 @@ void code_PROGRAM(Node* n) {
 }
 
 void code_EXTDEFS(Node* n) {
-	printf("EXTDEFS\n");
+	//printf("EXTDEFS\n");
 	if (n->child == NULL) return;
 	n = n->child;         //EXTDEF EXTDEFS
 	code_EXTDEF(n);
@@ -452,7 +453,7 @@ void code_EXTDEFS(Node* n) {
 }
 
 void code_EXTDEF(Node* n) {
-	printf("EXTDEF\n");
+	//printf("EXTDEF\n");
 	n = n->child;
 	char* type;
 	char code[CODE_LENGTH] = "";
@@ -481,7 +482,7 @@ void code_EXTDEF(Node* n) {
 }
 
 void code_EXTVARS(Node* n, char* type) {
-	printf("EXTVARS\n");
+	//printf("EXTVARS\n");
 	n = n->child;
 	while (n!= NULL){
 		if (strcmp(n->token, "DEC") == 0) code_DEC(n, type);
@@ -493,7 +494,7 @@ void code_EXTVARS(Node* n, char* type) {
 }
 
 char* code_SPEC(Node* n) {
-	printf("SPEC\n");
+	//printf("SPEC\n");
 	char* code = "";
 	n = n->child;
 	if (strcmp(n->token, "TYPE")==0) return "i32";
@@ -501,7 +502,7 @@ char* code_SPEC(Node* n) {
 }
 
 char* code_STSPEC(Node* n) {
-	printf("STSPECT\n");
+	//printf("STSPECT\n");
 	n = n->child;
 	char *ret, *code;
 	ret = (char*) malloc(sizeof(char)*CODE_LENGTH);
@@ -706,7 +707,7 @@ void code_DEFS(Node* n) {
 }
 
 void code_DEF(Node* n) {
-	printf("DEF\n");
+	//printf("DEF\n");
 	n = n->child;
 	char* type;
 	char code[CODE_LENGTH] = "";
@@ -719,7 +720,7 @@ void code_DEF(Node* n) {
 }
 
 void code_DECS(Node* n, char* type) {
-	printf("DECS\n");
+	//printf("DECS\n");
 	n = n->child;     //DEC
 	while (n!= NULL){
 		code_DEC(n, type);
@@ -754,7 +755,7 @@ char* getVAR_INDEX(Node* n){
 }
 
 void code_DEC(Node* n, char* type) {
-	printf("DEC\n");
+	//printf("DEC\n");
 	char code[CODE_LENGTH] = "";
 	n = n->child;
 	
@@ -763,14 +764,14 @@ void code_DEC(Node* n, char* type) {
 	// record_ids(var_id, type, n->attr.space, 0);
 
 	//declare
-	printf("DEC.declare\n");
+	//printf("DEC.declare\n");
 	char* res = getVAR_INDEX(n);
 	char tmp[CODE_LENGTH] = "";
 	if (strcmp(res, "-1") == 0) {    // is not array
 		if (n->attr.space == 0) sprintf(tmp, "@%s = common global %s ", var_id, type);
 		else sprintf(tmp, "%%%s = alloca %s, align 4\n", var_id, type);
 		record_ids(var_id, type, n->attr.space, 0);
-		printf("get all\n");
+		//printf("get all\n");
 	}
 	else {           				// is array
 		if (n->attr.space == 0) sprintf(tmp, "@%s = common global [%s x %s] ", var_id, res, type);
@@ -781,7 +782,7 @@ void code_DEC(Node* n, char* type) {
 	}
 	strcat(code, tmp);
 
-	printf("__DEC.init__\n");
+	//printf("__DEC.init__\n");
 	//init
 	if (n->next != NULL) {
 		Node* init_node = n->next->next;
@@ -807,7 +808,7 @@ void code_DEC(Node* n, char* type) {
 			}
 			strcat(code, tmp);
 			while(exp_node->next != NULL) {
-				printf ("flag\n");
+				//printf ("flag\n");
 				exp_node = exp_node->next->next->child;
 				i = i + 1;
 				reg_name = code_EXP(exp_node);
@@ -850,14 +851,14 @@ char* code_EXP(Node* n) {
 			char c;
 			if (getID_space(n->content) == 0) c = '@';
 			else c = '%';
+			org->attr.type = strdup(getID_type(n->content));
 			if (org->attr.isLeft == 0) {
 				ret = get_TMP();
 				fprintf(fout, "%s = load i32* %c%s, align 4\n", ret, c, getID_eliminatePara(n->content));
-				org->attr.type = strdup(getID_type(n->content));
 			}
 			else {
 				sprintf(ret, "%c%s", c, getID_eliminatePara(n->content));
-				org->attr.type = strdup("i32*");
+				if (strcmp(org->attr.type, "i32") == 0) org->attr.type = strdup("i32*");
 			}
 		}
 		else if (strcmp(n->next->token, "LP") == 0) {					// ID LP ARGS RP
@@ -1103,9 +1104,9 @@ char* code_EXP(Node* n) {
 			opr1 = code_EXP(n);
 			opr2 = code_EXP(n->next->next);
 			opr1_type = strdup(n->attr.type);
-			printf("___________%s\n", opr1_type);
+			//printf("___________%s\n", opr1_type);
 			opr2++;
-			printf("___________%s\n", opr2);
+			//printf("___________%s\n", opr2);
 			int t = isTypeExist(opr1_type);
 			if (t == -1) {
 				char* msg = (char*) malloc(sizeof(char)*50);
@@ -1133,13 +1134,12 @@ char* code_EXP(Node* n) {
 				char* reg = get_TMP();
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", reg, opr1_type, opr1, index);
 				fprintf(fout, "%s = load i32* %s, align 4\n", ret, reg);
-				org->attr.type = strdup(type);
 			}
 			else {
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", ret, opr1_type, opr1, index);
-				org->attr.type = strdup("i32*");
 			}
-			printf("DOT done\n");
+			org->attr.type = strdup(type);
+			//printf("DOT done\n");
 		}
 		else if (strcmp(n->next->token, "ASSIGNOP") == 0) {				// EXP ASSIGNOP EXP
 			n->attr.isLeft = 1;
@@ -1240,7 +1240,9 @@ char* code_EXP(Node* n) {
 		org->attr.type = strdup(n->next->attr.type);
 	}
 	else if (strcmp(n->token, "INT") == 0) {							// INT
-		sprintf(ret, "%s", n->content);
+		char* p;
+		long int tmp = strtol(n->content, &p, 0);
+		sprintf(ret, "%ld", tmp);
 		org->attr.type = strdup("i32");
 	}
 	else {}
@@ -1258,6 +1260,7 @@ char* code_ARGS(Node* n) {
 	if (n->attr.isLeft == 0) c = ' ';
 	else c = '*';
 
+	n->child->attr = n->attr;
 	n = n->child;
 	char* exp_code = code_EXP(n);
 	sprintf(tmp, "i32%c %s", c, exp_code);
@@ -1340,14 +1343,15 @@ int main(int argc, char* argv[]){
 	fout = fopen(argv[2], "w");
 	file_out_name = argv[2];
 	yyparse();
-	// printf("\n\n");
+	printf("\n\nParsing tree has been built.\n");
 	// walkGraph(head, 1);
 	// fclose(fout);
 
 	some_init();
 	codeGenerator(head);
+	printf("LLVM assembly code has been created.\n");
 
-	printIDS();
+	//printIDS();
 	return 0;
 }
 

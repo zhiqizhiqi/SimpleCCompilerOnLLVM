@@ -1,5 +1,5 @@
-program: lex.yy.o y.tab.o
-	gcc lex.yy.o y.tab.o -o program
+sc: lex.yy.o y.tab.o
+	gcc lex.yy.o y.tab.o -o sc
 
 lex.yy.o: lex.yy.c y.tab.h
 	gcc -c lex.yy.c
