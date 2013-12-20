@@ -1130,6 +1130,7 @@ char* code_EXP(Node* n) {
 				sprintf(msg, "variable \"%s\": there is no \"%s\" in %s.\n", opr1+1, opr2, opr1_type+1);
 				errorOccur(msg);
 			}
+			org->attr.type = strdup(type);
 			if ((strcmp(n->next->next->child->token, "ID") == 0) && org->attr.isLeft == 0) {
 				char* reg = get_TMP();
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", reg, opr1_type, opr1, index);
@@ -1137,8 +1138,8 @@ char* code_EXP(Node* n) {
 			}
 			else {
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", ret, opr1_type, opr1, index);
+				if (strcmp(org->attr.type, "i32") == 0) sprintf(org->attr.type, "i32*");
 			}
-			org->attr.type = strdup(type);
 			//printf("DOT done\n");
 		}
 		else if (strcmp(n->next->token, "ASSIGNOP") == 0) {				// EXP ASSIGNOP EXP
