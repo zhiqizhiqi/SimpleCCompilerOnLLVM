@@ -9,12 +9,13 @@
 #include "struct.h"
 #define YYDEBUG 1
 #define CODE_LENGTH 250
-#define TYPE_NUMBER 100
+#define TYPE_NUMBER 10
 #define ID_NUMBER 100
 
 typedef char* string;
 typedef struct _TYPE {
 	char* type;
+	char* name;
 	struct _TYPE* next;
 } Type;
 typedef struct _IDENTIFIER {
@@ -23,11 +24,17 @@ typedef struct _IDENTIFIER {
 	int space;
 	int isPara;
 } Identifier;
+typedef struct _STRUCT_CONTENT {
+	char* type;
+	char* name;
+	struct _STRUCT_CONTENT* next;
+} StructContent;
 
 Node *head;
 Node* Record(char *, ...);
-Type* types;
+Type** types;
 Identifier* ids;
+
 int ptr_types = 0;
 int ptr_ids = 0;
 int counter = 0;
@@ -242,6 +249,9 @@ char* getID_type(char* id);
 int getID_space(char* id);
 void printIDS();
 char* get_TMP();
+int isTypeExist(char* type);
+void addTypeIntoStruct(int i, char* type, char* name);
+StructContent* getStructContent(Node* n);
 
 void code_PROGRAM(Node *n);
 void code_EXTDEFS(Node* n);
@@ -263,6 +273,7 @@ void code_STMT(Node* n);
 void code_ESTMT(Node* n);
 char* code_ARGS(Node* n);
 char* code_ARRS(Node* n);
+char* code_OPTTAG(Node* n);
 void deal_with_read(Node* n);
 void deal_with_write(Node* n);
 void codeGenerator(Node *n);
@@ -281,6 +292,62 @@ void walkGraph(Node* n, int layer) {
 
 	return;
 }
+
+StructContent* getStructContent(Node* n){	// n is a DEFS node
+	n = n->child;
+	StructContent *ret, *tail;
+	ret = (StructContent*) malloc(sizeof(StructContent));
+	ret->next = NULL;
+	tail = ret;
+	while (n != NULL) {	// n is a DEF node
+		Node* tmp = n->child;		// SPEC DECS SEMI
+		char* type = code_SPEC(tmp);
+
+		//get ids
+		tmp = tmp->next->child;		// DEC COMMA DECS | DEC
+		while(1 == 1) {
+			StructContent* sc_tmp;
+			sc_tmp = (StructContent*) malloc(sizeof(StructContent));
+			Node* var = tmp->child;
+			char* var_id = getVAR_ID(var);
+			sc_tmp->type = strdup(type);
+			sc_tmp->name = strdup(var_id);
+			sc_tmp->next = NULL;
+			tail->next = sc_tmp;
+			tail = sc_tmp;
+			if (tmp->next == NULL) break;
+			tmp = tmp->next->next->child;
+		}
+		//free(type);
+		n = n->next->child;
+	}
+
+	return ret;
+}
+
+void addTypeIntoStruct(int i, char* type, char* name){
+	if (i>=ptr_types) return;
+	Type* t;
+	t = types[i];
+
+	while(t->next != NULL) t = t->next;
+	Type* new;
+	new = (Type*) malloc(sizeof(Type));
+	new->type = strdup(type);
+	new->name = strdup(name);
+	new->next = NULL;
+	t->next = new;
+	return;
+}
+
+int isTypeExist(char* type) {
+	int i;
+	for (i = 0; i < ptr_types; ++i) {
+		if (strcmp(type, types[i]->type) == 0) return i;
+	}
+	return -1;
+}
+
 char* get_TMP() {
 	char* ret;
 	ret = malloc(sizeof(char)*50);
@@ -294,7 +361,7 @@ char* getID_type(char* id) {
 		if (strcmp(id, ids[i].id) == 0)
 			return ids[i].type;
 	}
-	return NULL;
+	return "i32";
 }
 int getID_space(char* id) {
 	int i;
@@ -423,12 +490,48 @@ char* code_SPEC(Node* n) {
 }
 
 char* code_STSPEC(Node* n) {
-	printf("STSPEC\n");
-	return "STSPEC";
+	printf("STSPECT\n");
+	n = n->child;
+	char *ret, *code;
+	ret = (char*) malloc(sizeof(char)*CODE_LENGTH);
+	code = (char*) malloc(sizeof(char)*CODE_LENGTH);
+	sprintf(ret, "");
+	sprintf(code, "");
+
+	if (strcmp(n->next->token, "ID") == 0) {				// STRUCT ID
+		char* s_id = n->next->content;
+		sprintf(ret, "%%struct.%s", s_id);
+	}
+	else {													// STRUCT OPTTAG LC DEFS RC
+		int org_ptr = ptr_types++;
+		char* opttag = code_OPTTAG(n->next);
+		StructContent* sc = getStructContent(n->next->next->next);
+		types[org_ptr] = (Type*) malloc(sizeof(Type));
+		types[org_ptr]->type = (char*) malloc(sizeof(char)* 150);
+		types[org_ptr]->next = NULL;
+		sprintf(types[org_ptr]->type, "%%struct.%s", opttag);
+		ret = strdup(types[org_ptr]->type);
+		sprintf(code, "%s = type {", ret);
+		sc = sc->next;
+		while (sc != NULL) {
+			addTypeIntoStruct(org_ptr, sc->type, sc->name);
+			strcat(code, sc->type);
+			strcat(code, ",");
+			StructContent* tmp = sc;
+			sc = sc->next;
+			//free(tmp);
+		}
+		code[strlen(code)-1] = '\0';
+		strcat(code, "}\n");
+	}
+
+	fprintf(fout, "%s", code);
+	return ret;
 } 
 
-void code_OPTTAG(Node* n) {
-	
+char* code_OPTTAG(Node* n) {		// ID | nothing
+	n = n->child;
+	return n->content;
 }
 
 void code_VAR(Node* n) {
@@ -738,7 +841,7 @@ char* code_EXP(Node* n) {
 			else {
 				sprintf(ret, "%c%s", c, getID_eliminatePara(n->content));
 			}
-			org->attr.type = strdup("i32");
+			org->attr.type = strdup(getID_type(n->content));
 		}
 		else if (strcmp(n->next->token, "LP") == 0) {					// ID LP ARGS RP
 			if (strcmp(n->content, "read") == 0) deal_with_read(org);
@@ -880,8 +983,44 @@ char* code_EXP(Node* n) {
 			fprintf(fout, "%s = icmp ne i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
-		else if (strcmp(n->next->token, "DOT") == 0) {
+		else if (strcmp(n->next->token, "DOT") == 0) {					// EXP DOT EXP
+			ret = get_TMP();
+			char c;
+			char *opr1, *opr2, *opr1_type;
 
+			n->attr.isLeft = 1;
+			n->next->next->attr.isLeft = 1;
+			opr1 = code_EXP(n);
+			opr2 = code_EXP(n->next->next);
+			opr1_type = strdup(n->attr.type);
+			printf("___________%s\n", opr1_type);
+			opr2++;
+			printf("___________%s\n", opr2);
+			int t = isTypeExist(opr1_type);
+
+			int index = 0;
+			char* type = NULL;
+			Type* tmp = types[t]->next;
+			while (tmp!= NULL) {
+				if (strcmp(tmp->name, opr2) == 0) {
+					type = tmp->type;
+					break;
+				}
+				index++;
+				tmp = tmp->next;
+			}
+			if (type == NULL) printf("there is ERROR!\n");
+
+			if (org->attr.isLeft == 0) {
+				char* reg = get_TMP();
+				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", reg, opr1_type, opr1, index);
+				fprintf(fout, "%s = load i32* %s, align 4\n", ret, reg);
+			}
+			else {
+				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", ret, opr1_type, opr1, index);
+			}
+			printf("DOT done\n");
+			org->attr.type = strdup(type);
 		}
 		else if (strcmp(n->next->token, "ASSIGNOP") == 0) {				// EXP ASSIGNOP EXP
 			n->attr.isLeft = 1;
@@ -897,6 +1036,7 @@ char* code_EXP(Node* n) {
 			attr.isLeft = 1;
 			updateAttr(n, attr);
 			char* opr = code_EXP(n);
+
 			if (strcmp(n->next->token, "PLUSAN") == 0) {				// EXP PLUSAN EXP
 				fprintf(fout, "%s = add i32 %s, %s \n", ret, opr1, opr2);
 			}
@@ -986,7 +1126,10 @@ char* code_EXP(Node* n) {
 }
 
 char* code_ARGS(Node* n) {
-	char ret[CODE_LENGTH] = "";
+	char* ret;
+	ret = (char*) malloc(sizeof(char)*CODE_LENGTH);
+	sprintf(ret, "");
+
 	char tmp[CODE_LENGTH] = "";
 	char c;
 	if (n->attr.isLeft == 0) c = ' ';
@@ -1037,29 +1180,40 @@ void codeGenerator(Node *n) {
 	return;
 }
 void some_init() {
-	types = malloc(sizeof(Type)*TYPE_NUMBER);
-	ids = malloc(sizeof(Identifier)*ID_NUMBER);
+	types = (Type**) malloc(sizeof(Type*)*TYPE_NUMBER);
+	ids = (Identifier*)malloc(sizeof(Identifier)*ID_NUMBER);
 
-	types[0].type = strdup("i32");
+	types[0] = (Type*) malloc(sizeof(Type));
+	types[0]->type = strdup("i32");
+	types[0]->next = NULL;
+	++ptr_types;
 }
 void printIDS(){
 	int i = 0;
 	for (i = 0; i < ptr_ids; i++) {
 		printf("%s %s %d %d\n", ids[i].id, ids[i].type, ids[i].space, ids[i].isPara);
 	}
+	printf("\n\n");
+	for (i = 0; i < ptr_types; i++) {
+		printf("%d: %s____%s\n", i, types[i]->type, types[i]->name);
+		Type* tmp = types[i]->next;
+		while(tmp != NULL){
+			printf("   %s______%s\n", tmp->type, tmp->name);
+			tmp = tmp->next;
+		}
+	}
 }
 int main(int argc, char* argv[]){
 	//printf ("%s%s\n", argv[0], argv[1]);
 	yydebug=0;	//set it to 1, that should be DEBUG mode, to 0, that will disable DEBUG
 	freopen(argv[1], "r", stdin);
-	//fout = stdout;
+	// fout = stdout;
 	fout = fopen(argv[2], "w");
 	yyparse();
-	printf("\n\n");
+	// printf("\n\n");
 	// walkGraph(head, 1);
 	// fclose(fout);
-	// printf("walk Graph has done\n");
- 
+
 	some_init();
 	codeGenerator(head);
 
@@ -1068,6 +1222,7 @@ int main(int argc, char* argv[]){
 }
 
 int yyerror(char *msg){
+	//walkGraph(head, 1);
 	fprintf(fout, "ERROR.", msg);
 	exit(0);
 	return 0;
