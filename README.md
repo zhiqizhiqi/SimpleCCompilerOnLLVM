@@ -33,6 +33,6 @@
 ##command to run:
 ```
 $ make
-$ ./program (input file) (output file)
+$ ./sc (input file) (output file)
 $ ./lli (output file)
 ```
