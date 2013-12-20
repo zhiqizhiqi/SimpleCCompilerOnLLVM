@@ -8,8 +8,8 @@ struct ss1 {
 
 int main() {
 	int a;
-	A.s.a = 1;
-	a = A.s.a;
+	a = 4;
+	if (A) {}
 	write(a);
 	return 0;
 }	

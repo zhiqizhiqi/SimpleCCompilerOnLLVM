@@ -108,12 +108,13 @@ int ptr_types = 0;
 int ptr_ids = 0;
 int counter = 0;
 
+char* file_out_name;
 FILE *fout;
 
 extern int yydebug; 
 
 /* Line 268 of yacc.c  */
-#line 117 "y.tab.c"
+#line 118 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -254,14 +255,14 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 46 "sa.y"
+#line 47 "sa.y"
 
 	Node *node;
 
 
 
 /* Line 293 of yacc.c  */
-#line 265 "y.tab.c"
+#line 266 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -273,7 +274,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 277 "y.tab.c"
+#line 278 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -600,15 +601,15 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    91,    91,    95,    96,   100,   101,   105,   106,   107,
-     111,   112,   116,   117,   121,   122,   126,   127,   131,   135,
-     136,   137,   141,   145,   149,   150,   154,   155,   156,   157,
-     158,   159,   160,   164,   165,   169,   170,   174,   178,   179,
-     183,   184,   188,   189,   192,   193,   194,   195,   196,   197,
-     198,   199,   200,   201,   202,   203,   204,   205,   206,   207,
-     208,   209,   210,   211,   212,   213,   214,   215,   216,   217,
-     218,   219,   220,   221,   222,   223,   224,   225,   226,   227,
-     228,   229,   230,   231,   235,   236,   240,   241
+       0,    92,    92,    96,    97,   101,   102,   106,   107,   108,
+     112,   113,   117,   118,   122,   123,   127,   128,   132,   136,
+     137,   138,   142,   146,   150,   151,   155,   156,   157,   158,
+     159,   160,   161,   165,   166,   170,   171,   175,   179,   180,
+     184,   185,   189,   190,   193,   194,   195,   196,   197,   198,
+     199,   200,   201,   202,   203,   204,   205,   206,   207,   208,
+     209,   210,   211,   212,   213,   214,   215,   216,   217,   218,
+     219,   220,   221,   222,   223,   224,   225,   226,   227,   228,
+     229,   230,   231,   232,   236,   237,   241,   242
 };
 #endif
 
@@ -1759,609 +1760,609 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 91 "sa.y"
+#line 92 "sa.y"
     {(yyval.node) = Record("PROGRAM", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 95 "sa.y"
+#line 96 "sa.y"
     {(yyval.node) = Record("EXTDEFS", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 96 "sa.y"
+#line 97 "sa.y"
     {(yyval.node) = Record("EXTDEFS", NULL);}
     break;
 
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 100 "sa.y"
+#line 101 "sa.y"
     {(yyval.node) = Record("EXTDEF", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 101 "sa.y"
+#line 102 "sa.y"
     {(yyval.node) = Record("EXTDEF", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 105 "sa.y"
+#line 106 "sa.y"
     {(yyval.node) = Record("EXTVARS", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 106 "sa.y"
+#line 107 "sa.y"
     {(yyval.node) = Record("EXTVARS", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 107 "sa.y"
+#line 108 "sa.y"
     {(yyval.node) = Record("EXTVARS", NULL);}
     break;
 
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 111 "sa.y"
+#line 112 "sa.y"
     {(yyval.node) = Record("SPEC", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 112 "sa.y"
+#line 113 "sa.y"
     {(yyval.node) = Record("SPEC", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 116 "sa.y"
+#line 117 "sa.y"
     {(yyval.node) = Record("STSPEC", (yyvsp[(1) - (5)].node), (yyvsp[(2) - (5)].node), (yyvsp[(3) - (5)].node), (yyvsp[(4) - (5)].node), (yyvsp[(5) - (5)].node), NULL);}
     break;
 
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 117 "sa.y"
+#line 118 "sa.y"
     {(yyval.node) = Record("STSPEC", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 121 "sa.y"
+#line 122 "sa.y"
     {(yyval.node) = Record("OPTTAG", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 122 "sa.y"
+#line 123 "sa.y"
     {(yyval.node) = Record("OPTTAG", NULL);}
     break;
 
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 126 "sa.y"
+#line 127 "sa.y"
     {(yyval.node) = Record("VAR", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 127 "sa.y"
+#line 128 "sa.y"
     {(yyval.node) = Record("VAR", (yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node), (yyvsp[(3) - (4)].node), (yyvsp[(4) - (4)].node), NULL);}
     break;
 
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 131 "sa.y"
+#line 132 "sa.y"
     {(yyval.node) = Record("FUNC", (yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node), (yyvsp[(3) - (4)].node), (yyvsp[(4) - (4)].node), NULL);}
     break;
 
   case 19:
 
 /* Line 1806 of yacc.c  */
-#line 135 "sa.y"
+#line 136 "sa.y"
     {(yyval.node) = Record("PARAS", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 20:
 
 /* Line 1806 of yacc.c  */
-#line 136 "sa.y"
+#line 137 "sa.y"
     {(yyval.node) = Record("PARAS", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 21:
 
 /* Line 1806 of yacc.c  */
-#line 137 "sa.y"
+#line 138 "sa.y"
     {(yyval.node) = Record("PARAS", NULL);}
     break;
 
   case 22:
 
 /* Line 1806 of yacc.c  */
-#line 141 "sa.y"
+#line 142 "sa.y"
     {(yyval.node) = Record("PARA", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 23:
 
 /* Line 1806 of yacc.c  */
-#line 145 "sa.y"
+#line 146 "sa.y"
     {(yyval.node) = Record("STMTBLOCK", (yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node), (yyvsp[(3) - (4)].node), (yyvsp[(4) - (4)].node), NULL);}
     break;
 
   case 24:
 
 /* Line 1806 of yacc.c  */
-#line 149 "sa.y"
+#line 150 "sa.y"
     {(yyval.node) = Record("STMTS", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 25:
 
 /* Line 1806 of yacc.c  */
-#line 150 "sa.y"
+#line 151 "sa.y"
     {(yyval.node) = Record("STMTS", NULL);}
     break;
 
   case 26:
 
 /* Line 1806 of yacc.c  */
-#line 154 "sa.y"
+#line 155 "sa.y"
     {(yyval.node) = Record("STMT", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 27:
 
 /* Line 1806 of yacc.c  */
-#line 155 "sa.y"
+#line 156 "sa.y"
     {(yyval.node) = Record("STMT", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 28:
 
 /* Line 1806 of yacc.c  */
-#line 156 "sa.y"
+#line 157 "sa.y"
     {(yyval.node) = Record("STMT", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 29:
 
 /* Line 1806 of yacc.c  */
-#line 157 "sa.y"
+#line 158 "sa.y"
     {(yyval.node) = Record("STMT", (yyvsp[(1) - (6)].node), (yyvsp[(2) - (6)].node), (yyvsp[(3) - (6)].node), (yyvsp[(4) - (6)].node), (yyvsp[(5) - (6)].node), (yyvsp[(6) - (6)].node), NULL);}
     break;
 
   case 30:
 
 /* Line 1806 of yacc.c  */
-#line 158 "sa.y"
+#line 159 "sa.y"
     {(yyval.node) = Record("STMT", (yyvsp[(1) - (9)].node), (yyvsp[(2) - (9)].node), (yyvsp[(3) - (9)].node), (yyvsp[(4) - (9)].node), (yyvsp[(5) - (9)].node), (yyvsp[(6) - (9)].node), (yyvsp[(7) - (9)].node), (yyvsp[(8) - (9)].node), (yyvsp[(9) - (9)].node), NULL);}
     break;
 
   case 31:
 
 /* Line 1806 of yacc.c  */
-#line 159 "sa.y"
+#line 160 "sa.y"
     {(yyval.node) = Record("STMT", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 32:
 
 /* Line 1806 of yacc.c  */
-#line 160 "sa.y"
+#line 161 "sa.y"
     {(yyval.node) = Record("STMT", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 33:
 
 /* Line 1806 of yacc.c  */
-#line 164 "sa.y"
+#line 165 "sa.y"
     {(yyval.node) = Record("ESTMT", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 34:
 
 /* Line 1806 of yacc.c  */
-#line 165 "sa.y"
+#line 166 "sa.y"
     {(yyval.node) = Record("ESTMT", NULL);}
     break;
 
   case 35:
 
 /* Line 1806 of yacc.c  */
-#line 169 "sa.y"
+#line 170 "sa.y"
     {(yyval.node) = Record("DEFS", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 36:
 
 /* Line 1806 of yacc.c  */
-#line 170 "sa.y"
+#line 171 "sa.y"
     {(yyval.node) = Record("DEFS", NULL);}
     break;
 
   case 37:
 
 /* Line 1806 of yacc.c  */
-#line 174 "sa.y"
+#line 175 "sa.y"
     {(yyval.node) = Record("DEF", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 38:
 
 /* Line 1806 of yacc.c  */
-#line 178 "sa.y"
+#line 179 "sa.y"
     {(yyval.node) = Record("DECS", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 39:
 
 /* Line 1806 of yacc.c  */
-#line 179 "sa.y"
+#line 180 "sa.y"
     {(yyval.node) = Record("DECS", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 40:
 
 /* Line 1806 of yacc.c  */
-#line 183 "sa.y"
+#line 184 "sa.y"
     {(yyval.node) = Record("DEC", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 41:
 
 /* Line 1806 of yacc.c  */
-#line 184 "sa.y"
+#line 185 "sa.y"
     {(yyval.node) = Record("DEC", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 42:
 
 /* Line 1806 of yacc.c  */
-#line 188 "sa.y"
+#line 189 "sa.y"
     {(yyval.node) = Record("INIT", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 43:
 
 /* Line 1806 of yacc.c  */
-#line 189 "sa.y"
+#line 190 "sa.y"
     {(yyval.node) = Record("INIT", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 44:
 
 /* Line 1806 of yacc.c  */
-#line 192 "sa.y"
+#line 193 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 45:
 
 /* Line 1806 of yacc.c  */
-#line 193 "sa.y"
+#line 194 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 46:
 
 /* Line 1806 of yacc.c  */
-#line 194 "sa.y"
+#line 195 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 47:
 
 /* Line 1806 of yacc.c  */
-#line 195 "sa.y"
+#line 196 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 48:
 
 /* Line 1806 of yacc.c  */
-#line 196 "sa.y"
+#line 197 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 49:
 
 /* Line 1806 of yacc.c  */
-#line 197 "sa.y"
+#line 198 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 50:
 
 /* Line 1806 of yacc.c  */
-#line 198 "sa.y"
+#line 199 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 51:
 
 /* Line 1806 of yacc.c  */
-#line 199 "sa.y"
+#line 200 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 52:
 
 /* Line 1806 of yacc.c  */
-#line 200 "sa.y"
+#line 201 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 53:
 
 /* Line 1806 of yacc.c  */
-#line 201 "sa.y"
+#line 202 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 54:
 
 /* Line 1806 of yacc.c  */
-#line 202 "sa.y"
+#line 203 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 55:
 
 /* Line 1806 of yacc.c  */
-#line 203 "sa.y"
+#line 204 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 56:
 
 /* Line 1806 of yacc.c  */
-#line 204 "sa.y"
+#line 205 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 57:
 
 /* Line 1806 of yacc.c  */
-#line 205 "sa.y"
+#line 206 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 58:
 
 /* Line 1806 of yacc.c  */
-#line 206 "sa.y"
+#line 207 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 59:
 
 /* Line 1806 of yacc.c  */
-#line 207 "sa.y"
+#line 208 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 60:
 
 /* Line 1806 of yacc.c  */
-#line 208 "sa.y"
+#line 209 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 61:
 
 /* Line 1806 of yacc.c  */
-#line 209 "sa.y"
+#line 210 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 62:
 
 /* Line 1806 of yacc.c  */
-#line 210 "sa.y"
+#line 211 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 63:
 
 /* Line 1806 of yacc.c  */
-#line 211 "sa.y"
+#line 212 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 64:
 
 /* Line 1806 of yacc.c  */
-#line 212 "sa.y"
+#line 213 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 65:
 
 /* Line 1806 of yacc.c  */
-#line 213 "sa.y"
+#line 214 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 66:
 
 /* Line 1806 of yacc.c  */
-#line 214 "sa.y"
+#line 215 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 67:
 
 /* Line 1806 of yacc.c  */
-#line 215 "sa.y"
+#line 216 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 68:
 
 /* Line 1806 of yacc.c  */
-#line 216 "sa.y"
+#line 217 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 69:
 
 /* Line 1806 of yacc.c  */
-#line 217 "sa.y"
+#line 218 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 70:
 
 /* Line 1806 of yacc.c  */
-#line 218 "sa.y"
+#line 219 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 71:
 
 /* Line 1806 of yacc.c  */
-#line 219 "sa.y"
+#line 220 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 72:
 
 /* Line 1806 of yacc.c  */
-#line 220 "sa.y"
+#line 221 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 73:
 
 /* Line 1806 of yacc.c  */
-#line 221 "sa.y"
+#line 222 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 74:
 
 /* Line 1806 of yacc.c  */
-#line 222 "sa.y"
+#line 223 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 75:
 
 /* Line 1806 of yacc.c  */
-#line 223 "sa.y"
+#line 224 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 76:
 
 /* Line 1806 of yacc.c  */
-#line 224 "sa.y"
+#line 225 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 77:
 
 /* Line 1806 of yacc.c  */
-#line 225 "sa.y"
+#line 226 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 78:
 
 /* Line 1806 of yacc.c  */
-#line 226 "sa.y"
+#line 227 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 79:
 
 /* Line 1806 of yacc.c  */
-#line 227 "sa.y"
+#line 228 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 80:
 
 /* Line 1806 of yacc.c  */
-#line 228 "sa.y"
+#line 229 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node), (yyvsp[(3) - (4)].node), (yyvsp[(4) - (4)].node), NULL);}
     break;
 
   case 81:
 
 /* Line 1806 of yacc.c  */
-#line 229 "sa.y"
+#line 230 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node), NULL);}
     break;
 
   case 82:
 
 /* Line 1806 of yacc.c  */
-#line 230 "sa.y"
+#line 231 "sa.y"
     {(yyval.node) = Record("EXP", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
   case 83:
 
 /* Line 1806 of yacc.c  */
-#line 231 "sa.y"
+#line 232 "sa.y"
     {(yyval.node) = Record("EXP", NULL);}
     break;
 
   case 84:
 
 /* Line 1806 of yacc.c  */
-#line 235 "sa.y"
+#line 236 "sa.y"
     {(yyval.node) = Record("ARRS", (yyvsp[(1) - (4)].node), (yyvsp[(2) - (4)].node), (yyvsp[(3) - (4)].node), (yyvsp[(4) - (4)].node), NULL);}
     break;
 
   case 85:
 
 /* Line 1806 of yacc.c  */
-#line 236 "sa.y"
+#line 237 "sa.y"
     {(yyval.node) = Record("ARRS", NULL);}
     break;
 
   case 86:
 
 /* Line 1806 of yacc.c  */
-#line 240 "sa.y"
+#line 241 "sa.y"
     {(yyval.node) = Record("ARGS", (yyvsp[(1) - (3)].node), (yyvsp[(2) - (3)].node), (yyvsp[(3) - (3)].node), NULL);}
     break;
 
   case 87:
 
 /* Line 1806 of yacc.c  */
-#line 241 "sa.y"
+#line 242 "sa.y"
     {(yyval.node) = Record("ARGS", (yyvsp[(1) - (1)].node), NULL);}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 2365 "y.tab.c"
+#line 2366 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2592,7 +2593,9 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 244 "sa.y"
+#line 245 "sa.y"
+
+void errorOccur(char* msg);
 
 char* getVAR_ID(Node* n);
 char* getID_eliminatePara(char* id);
@@ -2629,7 +2632,6 @@ char* code_OPTTAG(Node* n);
 void deal_with_read(Node* n);
 void deal_with_write(Node* n);
 void codeGenerator(Node *n);
-
 
 void walkGraph(Node* n, int layer) {
 	fprintf(fout, "%*s_%d", layer*10, n->token, n->attr.space);
@@ -2735,6 +2737,15 @@ void updateAttr(Node* n, Attr attr) {
 }
 
 void record_ids(char* var_id, char* type, int space, int isPara) {
+	int i;
+	for (i = 0; i < ptr_ids; ++i) {
+		if (strcmp(var_id, ids[i].id) == 0) {
+			char* msg;
+			msg = (char*) malloc(sizeof(char)*100);
+			sprintf(msg, "variable \"%s\" occur multi-times.", var_id);
+			errorOccur(msg);
+		}
+	}
 	ids[ptr_ids].id = strdup(var_id);
 	ids[ptr_ids].type = strdup(type);
 	ids[ptr_ids].space = space;
@@ -2978,6 +2989,9 @@ void code_STMT(Node* n) {
 			fprintf(fout, "%s = icmp ne i32 %s, 0\n", reg, exp_code);
 			exp_code = reg;
 		}
+		else if (strcmp(n->next->next->attr.type, "i1") == 0) {}
+		else errorOccur("The boolean expression in IF has a type error.");
+
 		fprintf(fout, "br i1 %s, label %%if.then%d, label %%if.else%d\n\n", exp_code, counter, counter);
 		int tmp_counter = counter++;
 		fprintf(fout, "if.then%d:\n", tmp_counter);
@@ -3002,6 +3016,8 @@ void code_STMT(Node* n) {
 			fprintf(fout, "%s = icmp ne i32 %s, 0\n", reg, exp_code);
 			exp_code = reg;
 		}
+		else if (strcmp(n->attr.type, "i1") == 0) {}
+		else errorOccur("The boolean expression in FOR-LOOP has a type error.");
 		fprintf(fout, "br i1 %s, label %%for.body%d, label %%for.end%d\n\n", exp_code, tmp_counter, tmp_counter);
 		fprintf(fout, "for.body%d:\n", tmp_counter);
 		code_STMT(n->next->next->next->next);
@@ -3189,11 +3205,12 @@ char* code_EXP(Node* n) {
 			if (org->attr.isLeft == 0) {
 				ret = get_TMP();
 				fprintf(fout, "%s = load i32* %c%s, align 4\n", ret, c, getID_eliminatePara(n->content));
+				org->attr.type = strdup(getID_type(n->content));
 			}
 			else {
 				sprintf(ret, "%c%s", c, getID_eliminatePara(n->content));
+				org->attr.type = strdup("i32*");
 			}
-			org->attr.type = strdup(getID_type(n->content));
 		}
 		else if (strcmp(n->next->token, "LP") == 0) {					// ID LP ARGS RP
 			if (strcmp(n->content, "read") == 0) deal_with_read(org);
@@ -3217,11 +3234,12 @@ char* code_EXP(Node* n) {
 				char* reg = get_TMP();
 				fprintf(fout, "%s = getelementptr inbounds [%s]* %c%s, i32 0, %s\n", reg, getID_type(n->content), c, getID_eliminatePara(n->content), arrs_code);
 				fprintf(fout, "%s = load i32* %s, align 4\n", ret, reg);
+				org->attr.type = strdup("i32");
 			}
 			else {
 				fprintf(fout, "%s = getelementptr inbounds [%s]* %c%s, i32 0, %s\n", ret, getID_type(n->content), c, getID_eliminatePara(n->content), arrs_code);
+				org->attr.type = strdup("i32*");
 			}
-			org->attr.type = strdup("i32");
 		}
 		else {}
 	}
@@ -3230,42 +3248,77 @@ char* code_EXP(Node* n) {
 		if (strcmp(n->next->token, "PLUS") == 0) {						// EXP PLUS EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"+\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = add i32 %s, %s \n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "MINUS") == 0) {				// EXP MINUS EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"-\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = sub i32 %s, %s\n", ret, opr1, opr2);	
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "PRODUCT") == 0) {				// EXP PRODUCT EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"*\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = mul i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "DIVISION") == 0) {				// EXP DIVISION EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"/\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = sdiv i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "MOD") == 0) {					// EXP MOD EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"%%\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = srem i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "BAND") == 0) {					// EXP BAND EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"&\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = and i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "BXOR") == 0) {					// EXP BXOR EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"^\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = xor i32 %s, %s\n", ret, opr1, opr2);	
 			org->attr.type = strdup("i32");
 		}
@@ -3273,65 +3326,120 @@ char* code_EXP(Node* n) {
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
 			fprintf(fout, "%s = or i32 %s, %s\n", ret, opr1, opr2);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"|\"");
+				errorOccur(msg);
+			}
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "SHLEFT") == 0) {				// EXP SHLEFT EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"<<\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = shl i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "SHRIGHT") == 0) {				// EXP SHRIGHT EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \">>\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = lshr i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "LOGAND") == 0) {				// EXP LOGAND EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i1") != 0 || strcmp(n->next->next->attr.type, "i1") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"&&\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = and i1 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "LOGOR") == 0) {				// EXP LOGOR EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i1") != 0 || strcmp(n->next->next->attr.type, "i1") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"||\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = or i1 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "GREATER") == 0) {				// EXP GREATER EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \">\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp sgt i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "GREATEREQU") == 0) {			// EXP GREATEREQU EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \">=\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp sge i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "LESS") == 0) {					// EXP LESS EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"<\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp slt i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "LESSEQU") == 0) {				// EXP LESSEQU EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"<=\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp sle i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "EQU") == 0) {					// EXP EQU EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"==\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp eq i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "NOTEQU") == 0) {				// EXP NOTEQU EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"!=\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp ne i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
@@ -3351,6 +3459,11 @@ char* code_EXP(Node* n) {
 			opr2++;
 			printf("___________%s\n", opr2);
 			int t = isTypeExist(opr1_type);
+			if (t == -1) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "variable \"%s\" is not a struct.\n", opr1+1);
+				errorOccur(msg);
+			}
 
 			int index = 0;
 			char* type = NULL;
@@ -3363,23 +3476,31 @@ char* code_EXP(Node* n) {
 				index++;
 				tmp = tmp->next;
 			}
-			if (type == NULL) printf("there is ERROR!\n");
-
+			if (type == NULL) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "variable \"%s\": there is no \"%s\" in %s.\n", opr1+1, opr2, opr1_type+1);
+				errorOccur(msg);
+			}
 			if ((strcmp(n->next->next->child->token, "ID") == 0) && org->attr.isLeft == 0) {
 				char* reg = get_TMP();
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", reg, opr1_type, opr1, index);
 				fprintf(fout, "%s = load i32* %s, align 4\n", ret, reg);
+				org->attr.type = strdup(type);
 			}
 			else {
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", ret, opr1_type, opr1, index);
+				org->attr.type = strdup("i32*");
 			}
 			printf("DOT done\n");
-			org->attr.type = strdup(type);
 		}
 		else if (strcmp(n->next->token, "ASSIGNOP") == 0) {				// EXP ASSIGNOP EXP
 			n->attr.isLeft = 1;
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32*") != 0) 
+				errorOccur("These is a assign expression, left opr is not a left-value.\n");
+			if (strcmp(n->next->next->attr.type, "i32") != 0)
+				errorOccur("These is a assign expression which the type of right expression is not int.\n");
 			fprintf(fout, "store i32 %s, i32* %s, align 4\n", opr2, opr1);
 			org->attr.type = strdup("i32");
 		}
@@ -3537,10 +3658,6 @@ void some_init() {
 	types = (Type**) malloc(sizeof(Type*)*TYPE_NUMBER);
 	ids = (Identifier*)malloc(sizeof(Identifier)*ID_NUMBER);
 
-	types[0] = (Type*) malloc(sizeof(Type));
-	types[0]->type = strdup("i32");
-	types[0]->next = NULL;
-	++ptr_types;
 }
 void printIDS(){
 	int i = 0;
@@ -3557,12 +3674,23 @@ void printIDS(){
 		}
 	}
 }
+
+void errorOccur(char* msg){
+	fclose(fout);
+	fout = fopen(file_out_name, "w");
+	fprintf(fout, "ERROR.\n");
+	fclose(fout);
+	printf("\n\n\nError Info:\n%s\n", msg);
+	exit(0);
+}
+
 int main(int argc, char* argv[]){
 	//printf ("%s%s\n", argv[0], argv[1]);
 	yydebug=0;	//set it to 1, that should be DEBUG mode, to 0, that will disable DEBUG
 	freopen(argv[1], "r", stdin);
 	// fout = stdout;
 	fout = fopen(argv[2], "w");
+	file_out_name = argv[2];
 	yyparse();
 	// printf("\n\n");
 	// walkGraph(head, 1);

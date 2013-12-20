@@ -39,6 +39,7 @@ int ptr_types = 0;
 int ptr_ids = 0;
 int counter = 0;
 
+char* file_out_name;
 FILE *fout;
 
 extern int yydebug; %}
@@ -242,6 +243,8 @@ ARGS:
 	;
 
 %%
+void errorOccur(char* msg);
+
 char* getVAR_ID(Node* n);
 char* getID_eliminatePara(char* id);
 void pop_ids(int);
@@ -277,7 +280,6 @@ char* code_OPTTAG(Node* n);
 void deal_with_read(Node* n);
 void deal_with_write(Node* n);
 void codeGenerator(Node *n);
-
 
 void walkGraph(Node* n, int layer) {
 	fprintf(fout, "%*s_%d", layer*10, n->token, n->attr.space);
@@ -383,6 +385,15 @@ void updateAttr(Node* n, Attr attr) {
 }
 
 void record_ids(char* var_id, char* type, int space, int isPara) {
+	int i;
+	for (i = 0; i < ptr_ids; ++i) {
+		if (strcmp(var_id, ids[i].id) == 0) {
+			char* msg;
+			msg = (char*) malloc(sizeof(char)*100);
+			sprintf(msg, "variable \"%s\" occur multi-times.", var_id);
+			errorOccur(msg);
+		}
+	}
 	ids[ptr_ids].id = strdup(var_id);
 	ids[ptr_ids].type = strdup(type);
 	ids[ptr_ids].space = space;
@@ -626,6 +637,9 @@ void code_STMT(Node* n) {
 			fprintf(fout, "%s = icmp ne i32 %s, 0\n", reg, exp_code);
 			exp_code = reg;
 		}
+		else if (strcmp(n->next->next->attr.type, "i1") == 0) {}
+		else errorOccur("The boolean expression in IF has a type error.");
+
 		fprintf(fout, "br i1 %s, label %%if.then%d, label %%if.else%d\n\n", exp_code, counter, counter);
 		int tmp_counter = counter++;
 		fprintf(fout, "if.then%d:\n", tmp_counter);
@@ -650,6 +664,8 @@ void code_STMT(Node* n) {
 			fprintf(fout, "%s = icmp ne i32 %s, 0\n", reg, exp_code);
 			exp_code = reg;
 		}
+		else if (strcmp(n->attr.type, "i1") == 0) {}
+		else errorOccur("The boolean expression in FOR-LOOP has a type error.");
 		fprintf(fout, "br i1 %s, label %%for.body%d, label %%for.end%d\n\n", exp_code, tmp_counter, tmp_counter);
 		fprintf(fout, "for.body%d:\n", tmp_counter);
 		code_STMT(n->next->next->next->next);
@@ -837,11 +853,12 @@ char* code_EXP(Node* n) {
 			if (org->attr.isLeft == 0) {
 				ret = get_TMP();
 				fprintf(fout, "%s = load i32* %c%s, align 4\n", ret, c, getID_eliminatePara(n->content));
+				org->attr.type = strdup(getID_type(n->content));
 			}
 			else {
 				sprintf(ret, "%c%s", c, getID_eliminatePara(n->content));
+				org->attr.type = strdup("i32*");
 			}
-			org->attr.type = strdup(getID_type(n->content));
 		}
 		else if (strcmp(n->next->token, "LP") == 0) {					// ID LP ARGS RP
 			if (strcmp(n->content, "read") == 0) deal_with_read(org);
@@ -865,11 +882,12 @@ char* code_EXP(Node* n) {
 				char* reg = get_TMP();
 				fprintf(fout, "%s = getelementptr inbounds [%s]* %c%s, i32 0, %s\n", reg, getID_type(n->content), c, getID_eliminatePara(n->content), arrs_code);
 				fprintf(fout, "%s = load i32* %s, align 4\n", ret, reg);
+				org->attr.type = strdup("i32");
 			}
 			else {
 				fprintf(fout, "%s = getelementptr inbounds [%s]* %c%s, i32 0, %s\n", ret, getID_type(n->content), c, getID_eliminatePara(n->content), arrs_code);
+				org->attr.type = strdup("i32*");
 			}
-			org->attr.type = strdup("i32");
 		}
 		else {}
 	}
@@ -878,42 +896,77 @@ char* code_EXP(Node* n) {
 		if (strcmp(n->next->token, "PLUS") == 0) {						// EXP PLUS EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"+\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = add i32 %s, %s \n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "MINUS") == 0) {				// EXP MINUS EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"-\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = sub i32 %s, %s\n", ret, opr1, opr2);	
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "PRODUCT") == 0) {				// EXP PRODUCT EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"*\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = mul i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "DIVISION") == 0) {				// EXP DIVISION EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"/\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = sdiv i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "MOD") == 0) {					// EXP MOD EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"%%\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = srem i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "BAND") == 0) {					// EXP BAND EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"&\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = and i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "BXOR") == 0) {					// EXP BXOR EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"^\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = xor i32 %s, %s\n", ret, opr1, opr2);	
 			org->attr.type = strdup("i32");
 		}
@@ -921,65 +974,120 @@ char* code_EXP(Node* n) {
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
 			fprintf(fout, "%s = or i32 %s, %s\n", ret, opr1, opr2);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"|\"");
+				errorOccur(msg);
+			}
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "SHLEFT") == 0) {				// EXP SHLEFT EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"<<\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = shl i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "SHRIGHT") == 0) {				// EXP SHRIGHT EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \">>\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = lshr i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i32");
 		}
 		else if (strcmp(n->next->token, "LOGAND") == 0) {				// EXP LOGAND EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i1") != 0 || strcmp(n->next->next->attr.type, "i1") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"&&\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = and i1 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "LOGOR") == 0) {				// EXP LOGOR EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i1") != 0 || strcmp(n->next->next->attr.type, "i1") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"||\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = or i1 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "GREATER") == 0) {				// EXP GREATER EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \">\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp sgt i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "GREATEREQU") == 0) {			// EXP GREATEREQU EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \">=\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp sge i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "LESS") == 0) {					// EXP LESS EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"<\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp slt i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "LESSEQU") == 0) {				// EXP LESSEQU EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"<=\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp sle i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "EQU") == 0) {					// EXP EQU EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"==\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp eq i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
 		else if (strcmp(n->next->token, "NOTEQU") == 0) {				// EXP NOTEQU EXP
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32") != 0 || strcmp(n->next->next->attr.type, "i32") != 0) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "There is a type error when dealing with \"!=\"");
+				errorOccur(msg);
+			}
 			fprintf(fout, "%s = icmp ne i32 %s, %s\n", ret, opr1, opr2);
 			org->attr.type = strdup("i1");
 		}
@@ -999,6 +1107,11 @@ char* code_EXP(Node* n) {
 			opr2++;
 			printf("___________%s\n", opr2);
 			int t = isTypeExist(opr1_type);
+			if (t == -1) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "variable \"%s\" is not a struct.\n", opr1+1);
+				errorOccur(msg);
+			}
 
 			int index = 0;
 			char* type = NULL;
@@ -1011,23 +1124,31 @@ char* code_EXP(Node* n) {
 				index++;
 				tmp = tmp->next;
 			}
-			if (type == NULL) printf("there is ERROR!\n");
-
+			if (type == NULL) {
+				char* msg = (char*) malloc(sizeof(char)*50);
+				sprintf(msg, "variable \"%s\": there is no \"%s\" in %s.\n", opr1+1, opr2, opr1_type+1);
+				errorOccur(msg);
+			}
 			if ((strcmp(n->next->next->child->token, "ID") == 0) && org->attr.isLeft == 0) {
 				char* reg = get_TMP();
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", reg, opr1_type, opr1, index);
 				fprintf(fout, "%s = load i32* %s, align 4\n", ret, reg);
+				org->attr.type = strdup(type);
 			}
 			else {
 				fprintf(fout, "%s = getelementptr inbounds %s* %s, i32 0, i32 %d\n", ret, opr1_type, opr1, index);
+				org->attr.type = strdup("i32*");
 			}
 			printf("DOT done\n");
-			org->attr.type = strdup(type);
 		}
 		else if (strcmp(n->next->token, "ASSIGNOP") == 0) {				// EXP ASSIGNOP EXP
 			n->attr.isLeft = 1;
 			char* opr1 = code_EXP(n);
 			char* opr2 = code_EXP(n->next->next);
+			if (strcmp(n->attr.type, "i32*") != 0) 
+				errorOccur("These is a assign expression, left opr is not a left-value.\n");
+			if (strcmp(n->next->next->attr.type, "i32") != 0)
+				errorOccur("These is a assign expression which the type of right expression is not int.\n");
 			fprintf(fout, "store i32 %s, i32* %s, align 4\n", opr2, opr1);
 			org->attr.type = strdup("i32");
 		}
@@ -1185,10 +1306,6 @@ void some_init() {
 	types = (Type**) malloc(sizeof(Type*)*TYPE_NUMBER);
 	ids = (Identifier*)malloc(sizeof(Identifier)*ID_NUMBER);
 
-	types[0] = (Type*) malloc(sizeof(Type));
-	types[0]->type = strdup("i32");
-	types[0]->next = NULL;
-	++ptr_types;
 }
 void printIDS(){
 	int i = 0;
@@ -1205,12 +1322,23 @@ void printIDS(){
 		}
 	}
 }
+
+void errorOccur(char* msg){
+	fclose(fout);
+	fout = fopen(file_out_name, "w");
+	fprintf(fout, "ERROR.\n");
+	fclose(fout);
+	printf("\n\n\nError Info:\n%s\n", msg);
+	exit(0);
+}
+
 int main(int argc, char* argv[]){
 	//printf ("%s%s\n", argv[0], argv[1]);
 	yydebug=0;	//set it to 1, that should be DEBUG mode, to 0, that will disable DEBUG
 	freopen(argv[1], "r", stdin);
 	// fout = stdout;
 	fout = fopen(argv[2], "w");
+	file_out_name = argv[2];
 	yyparse();
 	// printf("\n\n");
 	// walkGraph(head, 1);

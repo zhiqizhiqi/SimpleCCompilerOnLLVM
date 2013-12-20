@@ -151,7 +151,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 46 "sa.y"
+#line 47 "sa.y"
 
 	Node *node;
 
